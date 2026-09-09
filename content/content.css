@@ -1,0 +1,36 @@
+/**
+ * LumiShade - Injected Content Stylesheet
+ * Governs the non-destructive warm & dim overlay curtains.
+ */
+
+.lumishade-curtain {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  pointer-events: none !important;
+  z-index: 2147483645 !important;
+  display: none;
+  transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+#lumishade-warm-curtain {
+  mix-blend-mode: multiply !important;
+}
+
+#lumishade-dim-curtain {
+  mix-blend-mode: normal !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lumishade-curtain,
+  html.lumishade-active {
+    transition: none !important;
+  }
+}

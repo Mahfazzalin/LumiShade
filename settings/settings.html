@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LumiShade Settings &amp; Preferences</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="settings-app">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="settings-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="../icons/icon-48.png" alt="LumiShade logo" width="32" height="32">
+        </div>
+        <div class="sidebar-title">
+          <h2>LumiShade</h2>
+          <span>Preferences</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Settings navigation">
+        <a href="#appearance" class="nav-item active" data-section="appearance">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+          </svg>
+          Appearance
+        </a>
+        <a href="#privacy" class="nav-item" data-section="privacy">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Privacy &amp; Blur
+        </a>
+        <a href="#behavior" class="nav-item" data-section="behavior">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          Behavior &amp; Sites
+        </a>
+        <a href="#shortcuts" class="nav-item" data-section="shortcuts">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+            <path d="M6 8h.001M10 8h.001M14 8h.001M18 8h.001M8 12h8M6 16h.001M10 16h.001M14 16h.001M18 16h.001"></path>
+          </svg>
+          Shortcuts
+        </a>
+        <a href="#about" class="nav-item" data-section="about">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          About &amp; Security
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button type="button" class="btn-restore-defaults" id="btn-restore-all">Restore All Defaults</button>
+        <span class="version-tag">LumiShade v1.0.0</span>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="settings-main">
+
+      <!-- Toast Notification -->
+      <div class="save-toast" id="save-toast" role="status" aria-live="polite">
+        Settings saved automatically
+      </div>
+
+      <!-- Appearance Section -->
+      <section id="appearance" class="settings-section">
+        <div class="section-header">
+          <h2>Appearance Defaults</h2>
+          <p class="section-subtitle">Configure the baseline color and intensity applied when starting the browser.</p>
+        </div>
+
+        <div class="card-grid">
+          <!-- Default Mode Card -->
+          <div class="setting-card">
+            <div class="card-text">
+              <label for="select-default-mode" class="card-title">Default Visual Mode</label>
+              <span class="card-desc">The default comfort profile active across new browser tabs.</span>
+            </div>
+            <div class="card-control">
+              <select id="select-default-mode" class="custom-select">
+                <option value="original">Original (Natural)</option>
+                <option value="night">Night Comfort (Recommended)</option>
+                <option value="warm">Warm Night (Amber)</option>
+                <option value="dim">Dim Level (Darkened)</option>
+                <option value="grayscale">Grayscale</option>
+                <option value="blackwhite">Black &amp; White (Monochrome)</option>
+                <option value="custom">Custom Preset</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Brightness Preset -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Default Brightness</span>
+              <span class="card-desc">Controls overall screen brightness reduction.</span>
+            </div>
+            <div class="card-slider-wrap">
+              <span class="slider-value" id="val-def-brightness">85%</span>
+              <input type="range" id="slider-def-brightness" min="0" max="100" value="85" class="custom-range" aria-label="Default Brightness">
+            </div>
+          </div>
+
+          <!-- Contrast Preset -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Default Contrast</span>
+              <span class="card-desc">Adjusts tonal separation to avoid eye fatigue.</span>
+            </div>
+            <div class="card-slider-wrap">
+              <span class="slider-value" id="val-def-contrast">92%</span>
+              <input type="range" id="slider-def-contrast" min="0" max="200" value="92" class="custom-range" aria-label="Default Contrast">
+            </div>
+          </div>
+
+          <!-- Warmth Preset -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Default Warmth</span>
+              <span class="card-desc">Adds a gentle amber tint for low-light evening browsing.</span>
+            </div>
+            <div class="card-slider-wrap">
+              <span class="slider-value" id="val-def-warmth">35%</span>
+              <input type="range" id="slider-def-warmth" min="0" max="100" value="35" class="custom-range" aria-label="Default Warmth">
+            </div>
+          </div>
+
+          <!-- Grayscale Preset -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Default Grayscale</span>
+              <span class="card-desc">Desaturates vibrant colors to lower visual stimulation.</span>
+            </div>
+            <div class="card-slider-wrap">
+              <span class="slider-value" id="val-def-grayscale">0%</span>
+              <input type="range" id="slider-def-grayscale" min="0" max="100" value="0" class="custom-range" aria-label="Default Grayscale">
+            </div>
+          </div>
+
+          <!-- Dim Level Preset -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Default Dim Level</span>
+              <span class="card-desc">Applies an extra non-destructive dark screen curtain.</span>
+            </div>
+            <div class="card-slider-wrap">
+              <span class="slider-value" id="val-def-dim">15%</span>
+              <input type="range" id="slider-def-dim" min="0" max="100" value="15" class="custom-range" aria-label="Default Dim">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Privacy & Blur Section -->
+      <section id="privacy" class="settings-section">
+        <div class="section-header">
+          <h2>Privacy &amp; Screen Blur</h2>
+          <p class="section-subtitle">Customize full-page privacy curtain behavior and floating unblur button positioning.</p>
+        </div>
+
+        <div class="card-grid">
+          <!-- Floating Button Position -->
+          <div class="setting-card">
+            <div class="card-text">
+              <label for="select-btn-pos" class="card-title">Floating Unblur Button Position</label>
+              <span class="card-desc">Where the sharp unblur pill appears when privacy blur is active.</span>
+            </div>
+            <div class="card-control">
+              <select id="select-btn-pos" class="custom-select">
+                <option value="bottom-right">Bottom Right (Default)</option>
+                <option value="bottom-left">Bottom Left</option>
+                <option value="top-right">Top Right</option>
+                <option value="top-left">Top Left</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Blur Strength -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Blur Intensity</span>
+              <span class="card-desc">Determines how strongly webpage text and media are obscured.</span>
+            </div>
+            <div class="card-slider-wrap">
+              <span class="slider-value" id="val-blur-strength">28px</span>
+              <input type="range" id="slider-blur-strength" min="10" max="60" value="28" class="custom-range" aria-label="Blur Intensity">
+            </div>
+          </div>
+
+          <!-- Veil Darkness -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Privacy Veil Opacity</span>
+              <span class="card-desc">Darkness of the translucent privacy layer covering the viewport.</span>
+            </div>
+            <div class="card-slider-wrap">
+              <span class="slider-value" id="val-veil-darkness">82%</span>
+              <input type="range" id="slider-veil-darkness" min="40" max="95" value="82" class="custom-range" aria-label="Privacy Veil Darkness">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Behavior & Sites Section -->
+      <section id="behavior" class="settings-section">
+        <div class="section-header">
+          <h2>Behavior &amp; Sites</h2>
+          <p class="section-subtitle">Automation rules and per-domain preferences.</p>
+        </div>
+
+        <div class="card-grid">
+          <!-- Enable on startup -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Enable Comfort on Browser Startup</span>
+              <span class="card-desc">Automatically activates LumiShade whenever the browser launches.</span>
+            </div>
+            <div class="card-control">
+              <label class="switch">
+                <input type="checkbox" id="toggle-startup" checked>
+                <span class="slider-switch"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Per-Site Memory -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Remember Per-Site Preferences</span>
+              <span class="card-desc">Remembers tailored color modes independently for specific websites.</span>
+            </div>
+            <div class="card-control">
+              <label class="switch">
+                <input type="checkbox" id="toggle-per-site">
+                <span class="slider-switch"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Keyboard Shortcuts Section -->
+      <section id="shortcuts" class="settings-section">
+        <div class="section-header">
+          <h2>Keyboard Shortcuts</h2>
+          <p class="section-subtitle">Quick commands for hands-free control of your browsing environment.</p>
+        </div>
+
+        <div class="shortcuts-table-card">
+          <table class="shortcuts-table">
+            <thead>
+              <tr>
+                <th>Action</th>
+                <th>Default Shortcut</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Toggle Power</strong></td>
+                <td><span class="kbd">Alt + Shift + E</span></td>
+                <td>Quickly turn eye comfort mode ON or OFF</td>
+              </tr>
+              <tr>
+                <td><strong>Toggle Privacy Blur</strong></td>
+                <td><span class="kbd">Alt + Shift + B</span></td>
+                <td>Instantly conceal or reveal the webpage contents</td>
+              </tr>
+              <tr>
+                <td><strong>Cycle Visual Mode</strong></td>
+                <td><span class="kbd">Alt + Shift + M</span></td>
+                <td>Switch between Night, Warm, Dim, Grayscale &amp; Original</td>
+              </tr>
+              <tr>
+                <td><strong>Dismiss Privacy Veil</strong></td>
+                <td><span class="kbd">Escape</span></td>
+                <td>Immediately restores page view when veil is active</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="shortcuts-info-box">
+            <p>
+              To customize or reassign shortcut keys, open Chrome's native shortcuts manager:
+            </p>
+            <code class="selectable-code">chrome://extensions/shortcuts</code>
+          </div>
+        </div>
+      </section>
+
+      <!-- About & Security Section -->
+      <section id="about" class="settings-section">
+        <div class="section-header">
+          <h2>About &amp; Security</h2>
+          <p class="section-subtitle">Built with complete privacy, performance, and transparency in mind.</p>
+        </div>
+
+        <div class="about-card">
+          <div class="about-header">
+            <img src="../icons/icon-48.png" alt="LumiShade Icon" width="40" height="40">
+            <div>
+              <h3>LumiShade — Eye Comfort, Night Mode &amp; Privacy</h3>
+              <p>Version 1.0.0 &bull; Manifest V3 &bull; Open &amp; Local</p>
+            </div>
+          </div>
+
+          <div class="security-highlights">
+            <div class="highlight-item">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#10b981" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+              <div>
+                <strong>100% Local Processing</strong>
+                <p>No analytics, no telemetry, and no remote server calls. Your browsing history is never accessed or recorded.</p>
+              </div>
+            </div>
+
+            <div class="highlight-item">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#6366f1" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <div>
+                <strong>Isolated Shadow DOM</strong>
+                <p>Extension UI overlays run inside closed/isolated Shadow DOM, preventing interference from hostile page CSS.</p>
+              </div>
+            </div>
+
+            <div class="highlight-item">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#f59e0b" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <div>
+                <strong>Non-Medical Notice</strong>
+                <p>LumiShade is designed to reduce visual brightness and provide a more comfortable viewing experience for low-light environments. It does not make medical or ophthalmological claims.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
