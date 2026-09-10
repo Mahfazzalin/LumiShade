@@ -53,6 +53,32 @@ Built with **Manifest V3**, modern CSS3, and vanilla JavaScript, LumiShade runs 
 8. **Accessibility & Reduced Motion**:
    - Full keyboard navigation and visible focus rings.
    - Strict adherence to `prefers-reduced-motion` media queries.
+9. **Smart, Non-Intrusive Rating & Feedback System**:
+   - Spaced review prompt with 30-day cooldown on dismissal ("Maybe Later" or <kbd>Escape</kbd>).
+   - 4–5 star rating directs to the Chrome Web Store review page.
+   - 1–3 star rating prompts for local improvement feedback (stored strictly on your machine).
+   - Never interrupts while Privacy Blur is active or on restricted pages.
+   - Can be toggled on or off at any time via Settings ("Periodic Feedback Prompts").
+
+---
+
+## User Review & Rating System
+
+LumiShade includes an intelligent, privacy-first review request prompt designed to respect user focus:
+
+- **Eligibility Criteria**:
+  - Extension install age must be at least **3 days**.
+  - Must have at least **5 active usage sessions**.
+  - Never triggers while **Privacy Blur** is active or while viewing browser-restricted internal pages (`chrome://`, `edge://`, `chromewebstore.google.com`).
+- **Cooldown & Snooze**:
+  - Clicking **Maybe Later** or dismissing the modal with <kbd>Escape</kbd> sets a **30-day cooldown period** during which no review prompts will appear.
+- **Opt-Out & Settings Control**:
+  - Selecting **Don't Ask Again** suppresses prompts. Users can also enable or disable the "Periodic Feedback Prompts" toggle anytime in the Settings page (`settings/settings.html`).
+- **Interactive 1–5 Star Flows**:
+  - **4–5 Stars**: Thank-you message with a direct link to the Chrome Web Store review tab.
+  - **1–3 Stars**: Constructive improvement tags (UI/UX, Performance, Night Mode, Color Filters, Privacy Blur, Other) saved strictly in `chrome.storage.local` with zero network requests.
+- **Manual Web Store Review**:
+  - Users can rate LumiShade at any time directly via the "Rate on Web Store" button in the Settings page.
 
 ---
 
@@ -72,7 +98,7 @@ To install and run LumiShade in Google Chrome or any Chromium-based browser (Bra
      c:\Users\mahf\Desktop\LumiShade
      ```
 5. **Verify Installation**:
-   - The **LumiShade** card will appear in your extension list with version `1.0.0`.
+   - The **LumiShade** card will appear in your extension list with version `1.0.1`.
    - Pin LumiShade to your browser toolbar for fast access.
 
 ---

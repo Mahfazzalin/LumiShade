@@ -21,7 +21,17 @@
     siteOverrides: {}
   };
 
+  const REVIEW_STORAGE_KEY = 'lumishade_review';
+  const CHROME_WEBSTORE_REVIEW_URL = 'https://chromewebstore.google.com/detail/lumishade';
+
   let currentSettings = { ...DEFAULT_SETTINGS };
+  let reviewState = {
+    installDate: Date.now(),
+    usageCount: 0,
+    lastPromptDate: null,
+    completed: false,
+    dontAskAgain: false
+  };
   let toastTimeout = null;
 
   // DOM Elements
@@ -45,6 +55,8 @@
 
   const toggleStartup = document.getElementById('toggle-startup');
   const togglePerSite = document.getElementById('toggle-per-site');
+  const toggleReviewPrompts = document.getElementById('toggle-review-prompts');
+  const btnRateStore = document.getElementById('btn-rate-store');
   const btnRestoreAll = document.getElementById('btn-restore-all');
   const saveToast = document.getElementById('save-toast');
 
@@ -82,7 +94,7 @@
   }
 
   /**
-   * Populate UI inputs from currentSettings.
+   * Populate UI inputs from currentSettings and reviewState.
    */
   function populateUI() {
     selectDefaultMode.value = currentSettings.mode || 'night';
@@ -112,6 +124,10 @@
 
     toggleStartup.checked = currentSettings.enableOnStartup !== false;
     togglePerSite.checked = Boolean(currentSettings.rememberPerSite);
+
+    if (toggleReviewPrompts) {
+      toggleReviewPrompts.checked = !reviewState.dontAskAgain;
+    }
   }
 
   /**
@@ -163,6 +179,36 @@
       persist();
     });
 
+    // Review prompts toggle
+    if (toggleReviewPrompts) {
+      toggleReviewPrompts.addEventListener('change', async () => {
+        reviewState.dontAskAgain = !toggleReviewPrompts.checked;
+        if (!toggleReviewPrompts.checked) {
+          reviewState.lastPromptDate = Date.now();
+        }
+        try {
+          if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+            await chrome.storage.local.set({ [REVIEW_STORAGE_KEY]: reviewState });
+          } else {
+            localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(reviewState));
+          }
+          showToast(toggleReviewPrompts.checked ? 'Feedback prompts enabled' : 'Feedback prompts disabled');
+        } catch (e) {
+          console.warn('[LumiShade Settings] Review toggle save error:', e);
+        }
+      });
+    }
+
+    // Direct Web Store rating button
+    if (btnRateStore) {
+      btnRateStore.addEventListener('click', () => {
+        const storeUrl = (typeof chrome !== 'undefined' && chrome.runtime?.id)
+          ? `https://chromewebstore.google.com/detail/${chrome.runtime.id}/reviews`
+          : CHROME_WEBSTORE_REVIEW_URL;
+        window.open(storeUrl, '_blank');
+      });
+    }
+
     // Restore all defaults
     btnRestoreAll.addEventListener('click', () => {
       if (confirm('Reset all LumiShade settings and preferences to factory defaults?')) {
@@ -209,6 +255,7 @@
    * Load storage settings on page load.
    */
   async function init() {
+    // 1. Load comfort settings
     if (typeof chrome !== 'undefined' && chrome.storage?.local) {
       try {
         const data = await chrome.storage.local.get('lumishade_settings');
@@ -222,6 +269,23 @@
       try {
         const local = localStorage.getItem('lumishade_settings');
         if (local) currentSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(local) };
+      } catch (e) {}
+    }
+
+    // 2. Load review state
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      try {
+        const rData = await chrome.storage.local.get(REVIEW_STORAGE_KEY);
+        if (rData && rData[REVIEW_STORAGE_KEY]) {
+          reviewState = { ...reviewState, ...rData[REVIEW_STORAGE_KEY] };
+        }
+      } catch (err) {
+        console.warn('[LumiShade Settings] Review state load error:', err);
+      }
+    } else {
+      try {
+        const localRev = localStorage.getItem(REVIEW_STORAGE_KEY);
+        if (localRev) reviewState = { ...reviewState, ...JSON.parse(localRev) };
       } catch (e) {}
     }
 

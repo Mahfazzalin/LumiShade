@@ -266,9 +266,99 @@
         <span class="kbd-badge">Alt+Shift+E</span> Power
       </div>
       <div class="footer-meta">
-        <span class="version-label">v1.0.0</span>
+        <span class="version-label">v1.0.1</span>
       </div>
     </footer>
+
+    <!-- Review & Rating Prompt Modal -->
+    <div class="review-modal-backdrop" id="review-modal-backdrop" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
+      <div class="review-modal-card">
+        <!-- Close button (top right) -->
+        <button type="button" class="review-close-btn" id="btn-review-close" aria-label="Close review dialog" title="Close">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="review-header">
+          <div class="review-icon-glow">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <h3 class="review-title" id="review-modal-title">Enjoying LumiShade?</h3>
+          <p class="review-subtitle" id="review-modal-subtitle">Your feedback helps us improve LumiShade.</p>
+        </div>
+
+        <!-- Interactive 5-Star Selector -->
+        <div class="star-rating-container" id="star-rating-group" role="radiogroup" aria-label="Rating out of 5 stars">
+          <button type="button" class="star-btn" data-rating="1" role="radio" aria-checked="false" aria-label="1 star">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+          <button type="button" class="star-btn" data-rating="2" role="radio" aria-checked="false" aria-label="2 stars">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+          <button type="button" class="star-btn" data-rating="3" role="radio" aria-checked="false" aria-label="3 stars">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+          <button type="button" class="star-btn" data-rating="4" role="radio" aria-checked="false" aria-label="4 stars">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+          <button type="button" class="star-btn" data-rating="5" role="radio" aria-checked="false" aria-label="5 stars">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 4-5 Stars Panel -->
+        <div class="review-positive-panel" id="review-positive-panel" style="display: none;">
+          <p class="positive-msg">Thank you! We're glad LumiShade is helping your eyes.</p>
+          <button type="button" class="btn-review-action" id="btn-leave-store-review">
+            <span>Leave a Review</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 1-3 Stars Feedback Panel -->
+        <div class="review-feedback-panel" id="review-feedback-panel" style="display: none;">
+          <p class="feedback-prompt">Thanks for the feedback. What could we improve?</p>
+          <div class="feedback-tags" role="group" aria-label="Improvement categories">
+            <button type="button" class="feedback-tag" data-tag="UI/UX">UI/UX</button>
+            <button type="button" class="feedback-tag" data-tag="Performance">Performance</button>
+            <button type="button" class="feedback-tag" data-tag="Night mode">Night mode</button>
+            <button type="button" class="feedback-tag" data-tag="Color filters">Color filters</button>
+            <button type="button" class="feedback-tag" data-tag="Privacy Blur">Privacy Blur</button>
+            <button type="button" class="feedback-tag" data-tag="Other">Other</button>
+          </div>
+          <div class="feedback-actions">
+            <button type="button" class="btn-review-action secondary" id="btn-submit-feedback">Send Local Feedback</button>
+            <button type="button" class="btn-review-text" id="btn-skip-feedback">Skip</button>
+          </div>
+        </div>
+
+        <!-- Default Actions (Initial view) -->
+        <div class="review-default-actions" id="review-default-actions">
+          <button type="button" class="btn-review-text" id="btn-review-later">Maybe Later</button>
+          <span class="action-separator">&bull;</span>
+          <button type="button" class="btn-review-text muted" id="btn-review-never">Don't Ask Again</button>
+        </div>
+
+      </div>
+    </div>
 
   </div>
 

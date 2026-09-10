@@ -67,6 +67,44 @@
   const btnResetSliders = document.getElementById('btn-reset-sliders');
   const btnOpenSettings = document.getElementById('btn-open-settings');
 
+  // Configurable Chrome Web Store Review URL
+  const CHROME_WEBSTORE_REVIEW_URL = 'https://chromewebstore.google.com/detail/lumishade';
+
+  // Review System Constants
+  const REVIEW_STORAGE_KEY = 'lumishade_review';
+  const FEEDBACK_STORAGE_KEY = 'lumishade_local_feedback';
+  const COOLDOWN_DAYS = 30;
+  const COOLDOWN_MS = COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+  const MIN_INSTALL_AGE_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
+  const MIN_USAGE_COUNT = 5;
+
+  const DEFAULT_REVIEW_STATE = {
+    installDate: 0,
+    usageCount: 0,
+    lastPromptDate: 0,
+    completed: false,
+    dontAskAgain: false
+  };
+
+  let reviewState = { ...DEFAULT_REVIEW_STATE };
+  let selectedRating = 0;
+  const selectedTags = new Set();
+
+  // Review DOM Elements
+  const reviewModalBackdrop = document.getElementById('review-modal-backdrop');
+  const btnReviewClose = document.getElementById('btn-review-close');
+  const starRatingGroup = document.getElementById('star-rating-group');
+  const starBtns = document.querySelectorAll('.star-btn');
+  const reviewPositivePanel = document.getElementById('review-positive-panel');
+  const btnLeaveStoreReview = document.getElementById('btn-leave-store-review');
+  const reviewFeedbackPanel = document.getElementById('review-feedback-panel');
+  const feedbackTags = document.querySelectorAll('.feedback-tag');
+  const btnSubmitFeedback = document.getElementById('btn-submit-feedback');
+  const btnSkipFeedback = document.getElementById('btn-skip-feedback');
+  const reviewDefaultActions = document.getElementById('review-default-actions');
+  const btnReviewLater = document.getElementById('btn-review-later');
+  const btnReviewNever = document.getElementById('btn-review-never');
+
   /**
    * Safe communication with the active tab.
    */
@@ -307,6 +345,269 @@
         }
       });
     }
+
+    // Attach review dialog listeners
+    attachReviewListeners();
+  }
+
+  /**
+   * Load review metadata from storage.
+   */
+  async function loadReviewState() {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        const data = await chrome.storage.local.get(REVIEW_STORAGE_KEY);
+        if (data && data[REVIEW_STORAGE_KEY]) {
+          reviewState = { ...DEFAULT_REVIEW_STATE, ...data[REVIEW_STORAGE_KEY] };
+        }
+      } else {
+        const local = localStorage.getItem(REVIEW_STORAGE_KEY);
+        if (local) reviewState = { ...DEFAULT_REVIEW_STATE, ...JSON.parse(local) };
+      }
+    } catch (e) {
+      console.warn('[LumiShade Review] Failed to load review state:', e);
+    }
+
+    if (!reviewState.installDate) {
+      reviewState.installDate = Date.now();
+    }
+    reviewState.usageCount = (reviewState.usageCount || 0) + 1;
+    await persistReviewState();
+  }
+
+  /**
+   * Persist review metadata to storage.
+   */
+  async function persistReviewState() {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        await chrome.storage.local.set({ [REVIEW_STORAGE_KEY]: reviewState });
+      } else {
+        localStorage.setItem(REVIEW_STORAGE_KEY, JSON.stringify(reviewState));
+      }
+    } catch (e) {
+      console.warn('[LumiShade Review] Failed to save review state:', e);
+    }
+  }
+
+  /**
+   * Check if review prompt should be shown.
+   */
+  function shouldShowReviewPrompt() {
+    if (!reviewState) return false;
+    if (reviewState.completed || reviewState.dontAskAgain) return false;
+    if (currentSettings && currentSettings.privacyActive) return false;
+    if (isRestrictedTab) return false;
+
+    const now = Date.now();
+    if (now - reviewState.installDate < MIN_INSTALL_AGE_MS) return false;
+    if (reviewState.usageCount < MIN_USAGE_COUNT) return false;
+    if (reviewState.lastPromptDate && (now - reviewState.lastPromptDate < COOLDOWN_MS)) return false;
+
+    return true;
+  }
+
+  /**
+   * Show the review dialog.
+   */
+  function showReviewModal() {
+    if (!reviewModalBackdrop) return;
+    selectedRating = 0;
+    selectedTags.clear();
+    updateStarUI(0);
+    if (reviewPositivePanel) reviewPositivePanel.style.display = 'none';
+    if (reviewFeedbackPanel) reviewFeedbackPanel.style.display = 'none';
+    if (reviewDefaultActions) reviewDefaultActions.style.display = 'flex';
+    feedbackTags.forEach((t) => t.classList.remove('selected'));
+    reviewModalBackdrop.style.display = 'flex';
+
+    const firstStar = starRatingGroup?.querySelector('.star-btn');
+    if (firstStar) setTimeout(() => firstStar.focus(), 60);
+  }
+
+  /**
+   * Hide the review dialog.
+   */
+  function hideReviewModal() {
+    if (reviewModalBackdrop) {
+      reviewModalBackdrop.style.display = 'none';
+    }
+  }
+
+  /**
+   * Update visual states of star buttons.
+   */
+  function updateStarUI(rating, isHover = false) {
+    starBtns.forEach((btn) => {
+      const r = parseInt(btn.dataset.rating, 10);
+      if (isHover) {
+        btn.classList.toggle('hovered', r <= rating);
+      } else {
+        btn.classList.remove('hovered');
+        btn.classList.toggle('active', r <= rating);
+        btn.setAttribute('aria-checked', r === rating ? 'true' : 'false');
+      }
+    });
+  }
+
+  /**
+   * Select a rating and transition to appropriate panel.
+   */
+  function selectRating(rating) {
+    selectedRating = rating;
+    updateStarUI(selectedRating, false);
+    if (reviewDefaultActions) reviewDefaultActions.style.display = 'none';
+
+    if (selectedRating >= 4) {
+      if (reviewFeedbackPanel) reviewFeedbackPanel.style.display = 'none';
+      if (reviewPositivePanel) {
+        reviewPositivePanel.style.display = 'flex';
+        btnLeaveStoreReview?.focus();
+      }
+    } else {
+      if (reviewPositivePanel) reviewPositivePanel.style.display = 'none';
+      if (reviewFeedbackPanel) {
+        reviewFeedbackPanel.style.display = 'flex';
+        btnSubmitFeedback?.focus();
+      }
+    }
+  }
+
+  /**
+   * Setup review listeners.
+   */
+  function attachReviewListeners() {
+    if (!reviewModalBackdrop) return;
+
+    // Close button
+    btnReviewClose?.addEventListener('click', async () => {
+      reviewState.lastPromptDate = Date.now();
+      await persistReviewState();
+      hideReviewModal();
+    });
+
+    // Star buttons
+    starBtns.forEach((btn) => {
+      const r = parseInt(btn.dataset.rating, 10);
+
+      btn.addEventListener('mouseenter', () => updateStarUI(r, true));
+
+      btn.addEventListener('click', () => selectRating(r));
+
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          selectRating(r);
+        }
+      });
+    });
+
+    starRatingGroup?.addEventListener('mouseleave', () => {
+      updateStarUI(selectedRating, false);
+    });
+
+    // Keyboard navigation within star rating group
+    starRatingGroup?.addEventListener('keydown', (e) => {
+      let nextRating = selectedRating;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        nextRating = Math.min(5, (selectedRating || 0) + 1);
+        selectRating(nextRating);
+        starBtns[nextRating - 1]?.focus();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        nextRating = Math.max(1, (selectedRating || 2) - 1);
+        selectRating(nextRating);
+        starBtns[nextRating - 1]?.focus();
+      } else if (['1', '2', '3', '4', '5'].includes(e.key)) {
+        e.preventDefault();
+        const num = parseInt(e.key, 10);
+        selectRating(num);
+        starBtns[num - 1]?.focus();
+      }
+    });
+
+    // 4-5 Stars Action
+    btnLeaveStoreReview?.addEventListener('click', async () => {
+      const storeUrl = (typeof chrome !== 'undefined' && chrome.runtime?.id)
+        ? `https://chromewebstore.google.com/detail/${chrome.runtime.id}/reviews`
+        : CHROME_WEBSTORE_REVIEW_URL;
+      window.open(storeUrl, '_blank');
+      reviewState.completed = true;
+      await persistReviewState();
+      hideReviewModal();
+    });
+
+    // Feedback tags (1-3 stars)
+    feedbackTags.forEach((tag) => {
+      tag.addEventListener('click', () => {
+        const cat = tag.dataset.tag;
+        if (selectedTags.has(cat)) {
+          selectedTags.delete(cat);
+          tag.classList.remove('selected');
+        } else {
+          selectedTags.add(cat);
+          tag.classList.add('selected');
+        }
+      });
+    });
+
+    // Submit feedback
+    btnSubmitFeedback?.addEventListener('click', async () => {
+      try {
+        const feedbackEntry = {
+          timestamp: Date.now(),
+          rating: selectedRating,
+          categories: Array.from(selectedTags)
+        };
+        if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+          const res = await chrome.storage.local.get(FEEDBACK_STORAGE_KEY);
+          const feedbackList = (res && res[FEEDBACK_STORAGE_KEY]) || [];
+          feedbackList.push(feedbackEntry);
+          await chrome.storage.local.set({ [FEEDBACK_STORAGE_KEY]: feedbackList });
+        }
+      } catch (e) {
+        console.warn('[LumiShade Review] Failed to store local feedback:', e);
+      }
+      reviewState.completed = true;
+      await persistReviewState();
+      hideReviewModal();
+    });
+
+    // Skip feedback
+    btnSkipFeedback?.addEventListener('click', async () => {
+      reviewState.completed = true;
+      await persistReviewState();
+      hideReviewModal();
+    });
+
+    // Maybe Later (30-day cooldown)
+    btnReviewLater?.addEventListener('click', async () => {
+      reviewState.lastPromptDate = Date.now();
+      await persistReviewState();
+      hideReviewModal();
+    });
+
+    // Don't Ask Again (permanent opt-out)
+    btnReviewNever?.addEventListener('click', async () => {
+      reviewState.dontAskAgain = true;
+      await persistReviewState();
+      hideReviewModal();
+    });
+
+    // Escape key listener for dialog dismissal
+    window.addEventListener('keydown', async (e) => {
+      if (e.key === 'Escape' && reviewModalBackdrop.style.display !== 'none') {
+        e.preventDefault();
+        e.stopPropagation();
+        reviewState.lastPromptDate = Date.now();
+        await persistReviewState();
+        hideReviewModal();
+      }
+    }, true);
+
+    // Global testing hook for manual verification
+    window.__lumishade_show_review__ = showReviewModal;
   }
 
   /**
@@ -361,6 +662,12 @@
 
     updateUI();
     attachEventListeners();
+
+    // 4. Load review metadata and prompt if eligible
+    await loadReviewState();
+    if (shouldShowReviewPrompt()) {
+      setTimeout(showReviewModal, 350);
+    }
   }
 
   // Run init on DOM ready

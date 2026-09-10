@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "LumiShade — Eye Comfort, Night Mode & Privacy",
   "short_name": "LumiShade",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Transform webpage colors for eye comfort, night browsing, warm tints, and instant screen privacy with one-click blur.",
   "icons": {
     "16": "icons/icon-16.png",

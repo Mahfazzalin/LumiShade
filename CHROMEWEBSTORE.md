@@ -108,7 +108,8 @@ English
 
 | Version | Date | Changes | Status |
 |---------|------|---------|--------|
-| 1.0.0 | 2026-09-10 | Initial production release with 7 visual modes, custom sliders, isolated Shadow DOM privacy veil, and keyboard shortcuts. | Draft |
+| 1.0.1 | 2026-09-10 | Added smart, privacy-first review and feedback system with 30-day cooldown and Settings controls. | Pending Submission |
+| 1.0.0 | 2026-09-10 | Initial production release with 7 visual modes, custom sliders, isolated Shadow DOM privacy veil, and keyboard shortcuts. | Archived |
 
 ## Review Notes
 

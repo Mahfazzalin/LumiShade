@@ -60,7 +60,7 @@
 
       <div class="sidebar-footer">
         <button type="button" class="btn-restore-defaults" id="btn-restore-all">Restore All Defaults</button>
-        <span class="version-tag">LumiShade v1.0.0</span>
+        <span class="version-tag">LumiShade v1.0.1</span>
       </div>
     </aside>
 
@@ -246,6 +246,20 @@
               </label>
             </div>
           </div>
+
+          <!-- Periodic Review & Rating Prompts -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Periodic Feedback Prompts</span>
+              <span class="card-desc">Allows occasional non-intrusive rating requests (spaced by 30+ days).</span>
+            </div>
+            <div class="card-control">
+              <label class="switch">
+                <input type="checkbox" id="toggle-review-prompts" checked>
+                <span class="slider-switch"></span>
+              </label>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -310,7 +324,7 @@
             <img src="../icons/icon-48.png" alt="LumiShade Icon" width="40" height="40">
             <div>
               <h3>LumiShade — Eye Comfort, Night Mode &amp; Privacy</h3>
-              <p>Version 1.0.0 &bull; Manifest V3 &bull; Open &amp; Local</p>
+              <p>Version 1.0.1 &bull; Manifest V3 &bull; Open &amp; Local</p>
             </div>
           </div>
 
@@ -348,6 +362,22 @@
                 <p>LumiShade is designed to reduce visual brightness and provide a more comfortable viewing experience for low-light environments. It does not make medical or ophthalmological claims.</p>
               </div>
             </div>
+          </div>
+
+          <!-- Rate on Web Store direct action -->
+          <div class="about-actions" style="margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <strong style="font-size: 13.5px; color: var(--text-primary);">Enjoying LumiShade?</strong>
+              <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">Support development by leaving a rating on the Web Store.</p>
+            </div>
+            <button type="button" class="btn-restore-defaults" id="btn-rate-store" style="background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.4); color: #e0e7ff; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;">
+              <span>Rate on Web Store</span>
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                <polyline points="15 3 21 3 21 9"></polyline>
+                <line x1="10" y1="14" x2="21" y2="3"></line>
+              </svg>
+            </button>
           </div>
         </div>
       </section>
