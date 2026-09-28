@@ -67,7 +67,9 @@ English
 
 | Permission | Type | Justification |
 |------------|------|---------------|
-| `storage` | permissions | Required to store user brightness, warmth, mode, and privacy preferences locally across browser restarts. |
+| `storage` | permissions | Required to store user brightness, warmth, mode, whitelist, and privacy preferences locally across browser restarts. |
+| `alarms` | permissions | Required to trigger scheduled night shifts and optional 20-20-20 eye rest break reminders without keeping background processes active continuously. |
+| `contextMenus` | permissions | Enables quick right-click access on web pages to toggle comfort mode, privacy veil, or whitelist the current website. |
 | `<all_urls>` | content_scripts.matches | Required to inject non-destructive visual filters and the privacy curtain onto web pages the user navigates to. |
 
 ## Privacy & Data Use
