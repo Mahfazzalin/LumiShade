@@ -10,6 +10,7 @@
     night: { brightness: 85, contrast: 92, grayscale: 0, warmth: 35, dim: 15 },
     warm: { brightness: 92, contrast: 100, grayscale: 0, warmth: 60, dim: 0 },
     dim: { brightness: 70, contrast: 95, grayscale: 0, warmth: 0, dim: 35 },
+    smartdark: { brightness: 95, contrast: 90, grayscale: 0, warmth: 15, dim: 0 },
     grayscale: { brightness: 100, contrast: 100, grayscale: 100, warmth: 0, dim: 0 },
     blackwhite: { brightness: 90, contrast: 155, grayscale: 100, warmth: 0, dim: 0 }
   };
@@ -28,7 +29,9 @@
     floatingButtonPosition: 'bottom-right',
     enableOnStartup: true,
     rememberPerSite: false,
-    siteOverrides: {}
+    siteOverrides: {},
+    excludedSites: [],
+    readingRulerActive: false
   };
 
   // State
@@ -37,12 +40,23 @@
   let isRestrictedTab = false;
   let rafId = null;
 
+  let currentHostname = '';
+
   // DOM Elements
   const powerToggle = document.getElementById('power-toggle');
   const statusDot = document.getElementById('status-dot');
   const statusTitle = document.getElementById('status-title');
   const statusSubtext = document.getElementById('status-subtext');
   const restrictedNotice = document.getElementById('restricted-notice');
+
+  const siteBar = document.getElementById('site-bar');
+  const siteHostname = document.getElementById('site-hostname');
+  const btnSiteToggle = document.getElementById('btn-site-toggle');
+  const siteToggleLabel = document.getElementById('site-toggle-label');
+
+  const btnQuickRuler = document.getElementById('btn-quick-ruler');
+  const statusQuickRuler = document.getElementById('status-quick-ruler');
+  const btnQuickBreak = document.getElementById('btn-quick-break');
 
   const privacyCard = document.getElementById('privacy-card');
   const btnPrivacyToggle = document.getElementById('btn-privacy-toggle');
@@ -63,6 +77,7 @@
   const valGrayscale = document.getElementById('val-grayscale');
   const valWarmth = document.getElementById('val-warmth');
   const valDim = document.getElementById('val-dim');
+  const valKelvin = document.getElementById('val-kelvin');
 
   const btnResetSliders = document.getElementById('btn-reset-sliders');
   const btnOpenSettings = document.getElementById('btn-open-settings');
@@ -190,6 +205,7 @@
       night: 'Night Comfort',
       warm: 'Warm Night',
       dim: 'Dim Level',
+      smartdark: 'Smart Dark',
       grayscale: 'Grayscale',
       blackwhite: 'Black & White',
       custom: 'Custom Fine-Tuning'
@@ -213,9 +229,33 @@
     valWarmth.textContent = `${currentSettings.warmth}%`;
     sliderWarmth.setAttribute('aria-valuenow', currentSettings.warmth);
 
+    // Update Kelvin indicator
+    if (valKelvin) {
+      const warmthVal = currentSettings.warmth || 0;
+      const k = Math.round(6500 - (warmthVal / 100) * 4600);
+      valKelvin.textContent = `${k}K`;
+    }
+
     sliderDim.value = currentSettings.dim;
     valDim.textContent = `${currentSettings.dim}%`;
     sliderDim.setAttribute('aria-valuenow', currentSettings.dim);
+
+    // 5. Site Exclusion UI
+    if (currentHostname && siteBar && siteBar.style.display !== 'none') {
+      const isExcluded = Array.isArray(currentSettings.excludedSites) && currentSettings.excludedSites.includes(currentHostname);
+      btnSiteToggle.classList.toggle('excluded', isExcluded);
+      siteToggleLabel.textContent = isExcluded ? 'Excluded' : 'Active';
+      if (isExcluded) {
+        statusSubtext.textContent = 'Paused on this domain';
+      }
+    }
+
+    // 6. Quick Reading Ruler UI
+    if (btnQuickRuler && statusQuickRuler) {
+      const isRulerActive = Boolean(currentSettings.readingRulerActive);
+      btnQuickRuler.classList.toggle('active', isRulerActive);
+      statusQuickRuler.textContent = isRulerActive ? 'ON' : 'OFF';
+    }
   }
 
   /**
@@ -249,6 +289,34 @@
    * Event Listeners setup.
    */
   function attachEventListeners() {
+    // Current Site Whitelist / Exclusion Toggle
+    btnSiteToggle?.addEventListener('click', async () => {
+      if (!currentHostname) return;
+      const list = currentSettings.excludedSites || [];
+      const idx = list.indexOf(currentHostname);
+      if (idx >= 0) {
+        list.splice(idx, 1);
+      } else {
+        list.push(currentHostname);
+      }
+      currentSettings.excludedSites = list;
+      updateUI();
+      dispatchSettingsToTab();
+    });
+
+    // Quick Reading Ruler Toggle
+    btnQuickRuler?.addEventListener('click', async () => {
+      currentSettings.readingRulerActive = !currentSettings.readingRulerActive;
+      updateUI();
+      dispatchSettingsToTab();
+    });
+
+    // Quick 20-20-20 Eye Rest Break
+    btnQuickBreak?.addEventListener('click', async () => {
+      await sendMessageToTab({ type: 'TRIGGER_EYE_BREAK', directCountdown: true });
+      window.close();
+    });
+
     // Power Toggle
     powerToggle.addEventListener('change', () => {
       currentSettings.enabled = powerToggle.checked;
@@ -293,6 +361,11 @@
         currentSettings[prop] = val;
         labelEl.textContent = `${val}%`;
         slider.setAttribute('aria-valuenow', val);
+
+        if (prop === 'warmth' && valKelvin) {
+          const k = Math.round(6500 - (val / 100) * 4600);
+          valKelvin.textContent = `${k}K`;
+        }
 
         // Switching sliders automatically switches mode to 'custom' unless already matching
         if (currentSettings.mode !== 'custom') {
@@ -624,6 +697,20 @@
           if (tab.url && (tab.url.startsWith('chrome://') || tab.url.startsWith('edge://') || tab.url.includes('chromewebstore.google.com'))) {
             isRestrictedTab = true;
             restrictedNotice.style.display = 'flex';
+            if (siteBar) siteBar.style.display = 'none';
+          } else if (tab.url) {
+            try {
+              const url = new URL(tab.url);
+              if (url.protocol.startsWith('http')) {
+                currentHostname = url.hostname;
+                if (siteHostname) siteHostname.textContent = currentHostname;
+                if (siteBar) siteBar.style.display = 'flex';
+              } else {
+                if (siteBar) siteBar.style.display = 'none';
+              }
+            } catch (e) {
+              if (siteBar) siteBar.style.display = 'none';
+            }
           }
         }
       } catch (err) {

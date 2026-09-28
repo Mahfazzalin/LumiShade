@@ -74,6 +74,13 @@
         return 'none';
       }
 
+      // Handle Smart Dark Mode separately for high-performance inversion
+      if (settings.mode === 'smartdark') {
+        let brightVal = typeof settings.brightness === 'number' ? settings.brightness : 95;
+        let contrastVal = typeof settings.contrast === 'number' ? settings.contrast : 90;
+        return `invert(92%) hue-rotate(180deg) brightness(${(brightVal / 100).toFixed(2)}) contrast(${(contrastVal / 100).toFixed(2)})`;
+      }
+
       const filters = [];
 
       // 1. Grayscale
@@ -141,17 +148,51 @@
       const style = this.getOrCreateStyleElement();
       const filterStr = this.buildFilterString(settings);
 
-      // We apply filter to html root with smooth transitions
-      style.textContent = `
-        html.lumishade-active {
-          filter: ${filterStr} !important;
-          transition: filter 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-      `;
-      document.documentElement.classList.add('lumishade-active');
+      if (settings.mode === 'smartdark') {
+        document.documentElement.classList.add('lumishade-active', 'lumishade-smartdark');
+        style.textContent = `
+          html.lumishade-active.lumishade-smartdark {
+            filter: ${filterStr} !important;
+            background-color: #121212 !important;
+            transition: filter 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          }
+          /* Selective inversion: keep photos, videos, and icons looking natural */
+          html.lumishade-active.lumishade-smartdark img,
+          html.lumishade-active.lumishade-smartdark video,
+          html.lumishade-active.lumishade-smartdark canvas,
+          html.lumishade-active.lumishade-smartdark picture,
+          html.lumishade-active.lumishade-smartdark svg:not(:root),
+          html.lumishade-active.lumishade-smartdark [style*="background-image"] {
+            filter: invert(100%) hue-rotate(180deg) !important;
+          }
+          /* Keep extension overlays and shadow hosts normal without double-inverting */
+          #lumishade-warm-curtain,
+          #lumishade-dim-curtain,
+          #lumishade-privacy-host,
+          #lumishade-ruler-host,
+          #lumishade-break-host {
+            filter: invert(100%) hue-rotate(180deg) !important;
+          }
+        `;
+      } else {
+        document.documentElement.classList.remove('lumishade-smartdark');
+        document.documentElement.classList.add('lumishade-active');
+        style.textContent = `
+          html.lumishade-active {
+            filter: ${filterStr} !important;
+            transition: filter 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+          }
+        `;
+      }
 
-      // Update warm and dim curtains
+      // Update warm and dim curtains (disabled in smartdark mode for clean reading)
       this.getOrCreateCurtains();
+
+      if (settings.mode === 'smartdark') {
+        if (this.warmCurtain) this.warmCurtain.style.display = 'none';
+        if (this.dimCurtain) this.dimCurtain.style.display = 'none';
+        return;
+      }
 
       // Warm curtain: amber tone overlay
       let warmth = settings.warmth || 0;
@@ -160,7 +201,6 @@
 
       if (this.warmCurtain) {
         if (warmth > 0) {
-          // Calculate opacity: 0 to 0.28 max for comfort without obscuring contrast
           const warmAlpha = ((warmth / 100) * 0.26).toFixed(3);
           this.warmCurtain.style.backgroundColor = `rgba(245, 158, 11, ${warmAlpha})`;
           this.warmCurtain.style.display = 'block';
@@ -176,7 +216,6 @@
 
       if (this.dimCurtain) {
         if (dim > 0) {
-          // Calculate opacity: 0 to 0.70 max
           const dimAlpha = ((dim / 100) * 0.68).toFixed(3);
           this.dimCurtain.style.backgroundColor = `rgba(0, 0, 0, ${dimAlpha})`;
           this.dimCurtain.style.display = 'block';
@@ -190,7 +229,7 @@
      * Clear all filters and hide curtains.
      */
     clear() {
-      document.documentElement.classList.remove('lumishade-active');
+      document.documentElement.classList.remove('lumishade-active', 'lumishade-smartdark');
       if (this.styleElement && this.styleElement.parentNode) {
         this.styleElement.textContent = '';
       }

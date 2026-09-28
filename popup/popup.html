@@ -40,6 +40,23 @@
       <span>Chrome blocks extensions on internal &amp; Web Store pages.</span>
     </div>
 
+    <!-- Current Website Whitelist/Exclusion Bar -->
+    <div class="site-bar" id="site-bar">
+      <div class="site-info">
+        <span class="site-globe-icon">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </span>
+        <span class="site-hostname" id="site-hostname">Detecting domain...</span>
+      </div>
+      <button type="button" class="btn-site-toggle" id="btn-site-toggle" title="Exclude or include this domain">
+        <span id="site-toggle-label">Active</span>
+      </button>
+    </div>
+
     <!-- Power & Status Card -->
     <section class="power-card" aria-label="Extension Power State">
       <div class="power-info">
@@ -73,6 +90,20 @@
           <span class="toggle-text" id="privacy-btn-text">Enable</span>
         </button>
       </div>
+    </section>
+
+    <!-- Eye Care Quick Bar -->
+    <section class="quick-tools-row">
+      <button type="button" class="quick-tool-btn" id="btn-quick-ruler" title="Toggle Focus Reading Ruler (Alt+Shift+R)">
+        <span class="quick-tool-icon">📏</span>
+        <span class="quick-tool-label">Reading Ruler</span>
+        <span class="quick-tool-status" id="status-quick-ruler">OFF</span>
+      </button>
+      <button type="button" class="quick-tool-btn" id="btn-quick-break" title="Take a 20-second Eye Rest Break">
+        <span class="quick-tool-icon">👁️</span>
+        <span class="quick-tool-label">20-20-20 Rest</span>
+        <span class="quick-tool-status">Start</span>
+      </button>
     </section>
 
     <!-- Mode Selector Cards -->
@@ -142,6 +173,19 @@
           </div>
           <span class="mode-title">Dim</span>
           <span class="mode-desc">Lower brightness</span>
+        </button>
+
+        <!-- Smart Dark -->
+        <button type="button" class="mode-card" data-mode="smartdark" role="radio" aria-checked="false" tabindex="0">
+          <div class="mode-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+              <path d="M19 3v4"></path>
+              <path d="M21 5h-4"></path>
+            </svg>
+          </div>
+          <span class="mode-title">Smart Dark</span>
+          <span class="mode-desc">Invert bright sites</span>
         </button>
 
         <!-- Grayscale -->
@@ -236,7 +280,10 @@
         <!-- Warmth -->
         <div class="slider-row">
           <div class="slider-label-group">
-            <span class="slider-name">Warmth</span>
+            <div class="slider-name-wrap">
+              <span class="slider-name">Warmth</span>
+              <span class="kelvin-badge" id="val-kelvin">3400K</span>
+            </div>
             <span class="slider-val" id="val-warmth">35%</span>
           </div>
           <div class="slider-track-wrap">

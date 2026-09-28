@@ -184,6 +184,42 @@
             margin-left: 2px !important;
           }
 
+          .lumishade-privacy-center-badge {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 22px 32px !important;
+            background: rgba(15, 23, 42, 0.7) !important;
+            border: 1px solid rgba(129, 140, 248, 0.35) !important;
+            border-radius: 20px !important;
+            backdrop-filter: blur(16px) !important;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55), 0 0 25px rgba(99, 102, 241, 0.2) !important;
+            color: #f8fafc !important;
+            pointer-events: none !important;
+            z-index: 2147483647 !important;
+            user-select: none !important;
+            text-align: center !important;
+          }
+
+          .lumishade-lock-title {
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            color: #f1f5f9 !important;
+            letter-spacing: -0.01em !important;
+          }
+
+          .lumishade-lock-time {
+            font-size: 12.5px !important;
+            font-weight: 500 !important;
+            color: #a5b4fc !important;
+            font-variant-numeric: tabular-nums !important;
+          }
+
           @media (prefers-reduced-motion: reduce) {
             .lumishade-privacy-curtain,
             .lumishade-unblur-btn {
@@ -194,6 +230,15 @@
         </style>
 
         <div class="lumishade-privacy-curtain" aria-hidden="true"></div>
+
+        <div class="lumishade-privacy-center-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <div class="lumishade-lock-title">Screen Concealed by LumiShade</div>
+          <div class="lumishade-lock-time" id="lumishade-privacy-clock"></div>
+        </div>
 
         <button type="button" class="lumishade-unblur-btn" id="lumishade-unblur-trigger"
                 role="button" aria-label="Restore webpage view. Escape key also restores view." tabindex="0">
@@ -208,6 +253,18 @@
           <span class="lumishade-key-badge" title="Shortcut to restore">Esc</span>
         </button>
       `;
+
+      // Update live clock
+      const clockEl = shadow.getElementById('lumishade-privacy-clock');
+      const updateClock = () => {
+        if (clockEl) {
+          const now = new Date();
+          clockEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+      };
+      updateClock();
+      clearInterval(this.clockInterval);
+      this.clockInterval = setInterval(updateClock, 1000);
 
       // Attach unblur event to the button
       const btn = shadow.getElementById('lumishade-unblur-trigger');
@@ -266,6 +323,7 @@
      */
     disable() {
       this.isActive = false;
+      clearInterval(this.clockInterval);
       window.removeEventListener('keydown', this.escapeHandler, true);
       if (this.shadowRoot) {
         this.shadowRoot.innerHTML = '';

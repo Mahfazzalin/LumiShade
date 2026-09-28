@@ -29,17 +29,39 @@
           </svg>
           Appearance
         </a>
+        <a href="#automation" class="nav-item" data-section="automation">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Schedule &amp; Auto
+        </a>
         <a href="#privacy" class="nav-item" data-section="privacy">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
           Privacy &amp; Blur
         </a>
+        <a href="#wellness" class="nav-item" data-section="wellness">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Eye Care &amp; Tools
+        </a>
         <a href="#behavior" class="nav-item" data-section="behavior">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
           </svg>
           Behavior &amp; Sites
+        </a>
+        <a href="#backup" class="nav-item" data-section="backup">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Backup &amp; Restore
         </a>
         <a href="#shortcuts" class="nav-item" data-section="shortcuts">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
@@ -60,7 +82,7 @@
 
       <div class="sidebar-footer">
         <button type="button" class="btn-restore-defaults" id="btn-restore-all">Restore All Defaults</button>
-        <span class="version-tag">LumiShade v1.0.1</span>
+        <span class="version-tag">LumiShade v1.1.0</span>
       </div>
     </aside>
 
@@ -76,7 +98,7 @@
       <section id="appearance" class="settings-section">
         <div class="section-header">
           <h2>Appearance Defaults</h2>
-          <p class="section-subtitle">Configure the baseline color and intensity applied when starting the browser.</p>
+          <p class="section-subtitle">Configure the baseline color and intensity applied across new browser sessions.</p>
         </div>
 
         <div class="card-grid">
@@ -92,6 +114,7 @@
                 <option value="night">Night Comfort (Recommended)</option>
                 <option value="warm">Warm Night (Amber)</option>
                 <option value="dim">Dim Level (Darkened)</option>
+                <option value="smartdark">Smart Dark (Invert Bright Sites)</option>
                 <option value="grayscale">Grayscale</option>
                 <option value="blackwhite">Black &amp; White (Monochrome)</option>
                 <option value="custom">Custom Preset</option>
@@ -161,11 +184,78 @@
         </div>
       </section>
 
+      <!-- Schedule & Automation Section -->
+      <section id="automation" class="settings-section">
+        <div class="section-header">
+          <h2>Schedule &amp; Automation</h2>
+          <p class="section-subtitle">Automatically adapt comfort modes based on time of day or system appearance.</p>
+        </div>
+
+        <div class="card-grid">
+          <!-- Auto Schedule Toggle -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Scheduled Night Shift</span>
+              <span class="card-desc">Automatically switch into comfort mode during specified hours.</span>
+            </div>
+            <div class="card-control">
+              <label class="switch">
+                <input type="checkbox" id="toggle-schedule">
+                <span class="slider-switch"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Schedule Times -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Active Time Range</span>
+              <span class="card-desc">Specify start and end hours for night mode automation.</span>
+            </div>
+            <div class="card-control" style="display: flex; align-items: center; gap: 8px;">
+              <input type="time" id="input-schedule-start" value="20:00" class="custom-time-input" aria-label="Start time">
+              <span style="color: var(--text-muted); font-size: 12px;">to</span>
+              <input type="time" id="input-schedule-end" value="07:00" class="custom-time-input" aria-label="End time">
+            </div>
+          </div>
+
+          <!-- Schedule Target Mode -->
+          <div class="setting-card">
+            <div class="card-text">
+              <label for="select-schedule-mode" class="card-title">Scheduled Target Mode</label>
+              <span class="card-desc">Which visual mode will be engaged during the scheduled window.</span>
+            </div>
+            <div class="card-control">
+              <select id="select-schedule-mode" class="custom-select">
+                <option value="night">Night Comfort</option>
+                <option value="warm">Warm Night (Amber)</option>
+                <option value="dim">Dim Level</option>
+                <option value="smartdark">Smart Dark</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- OS Theme Sync -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Synchronize with System Dark Mode</span>
+              <span class="card-desc">Follows your OS light/dark theme preference automatically.</span>
+            </div>
+            <div class="card-control">
+              <label class="switch">
+                <input type="checkbox" id="toggle-os-sync">
+                <span class="slider-switch"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Privacy & Blur Section -->
       <section id="privacy" class="settings-section">
         <div class="section-header">
           <h2>Privacy &amp; Screen Blur</h2>
-          <p class="section-subtitle">Customize full-page privacy curtain behavior and floating unblur button positioning.</p>
+          <p class="section-subtitle">Customize full-page privacy curtain behavior and automated safety triggers.</p>
         </div>
 
         <div class="card-grid">
@@ -206,6 +296,102 @@
             <div class="card-slider-wrap">
               <span class="slider-value" id="val-veil-darkness">82%</span>
               <input type="range" id="slider-veil-darkness" min="40" max="95" value="82" class="custom-range" aria-label="Privacy Veil Darkness">
+            </div>
+          </div>
+
+          <!-- Auto-Blur on Window Blur -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Auto-Blur on Tab Switch</span>
+              <span class="card-desc">Instantly conceals the page whenever you switch tabs or minimize the browser.</span>
+            </div>
+            <div class="card-control">
+              <label class="switch">
+                <input type="checkbox" id="toggle-autoblur-blur">
+                <span class="slider-switch"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Inactivity Auto-Blur -->
+          <div class="setting-card">
+            <div class="card-text">
+              <label for="select-inactivity" class="card-title">Auto-Blur on Inactivity</label>
+              <span class="card-desc">Engage privacy veil if no keyboard or mouse activity is detected.</span>
+            </div>
+            <div class="card-control">
+              <select id="select-inactivity" class="custom-select">
+                <option value="0">Disabled (Manual Only)</option>
+                <option value="1">After 1 minute</option>
+                <option value="2">After 2 minutes</option>
+                <option value="5">After 5 minutes</option>
+                <option value="10">After 10 minutes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Eye Care & Tools Section -->
+      <section id="wellness" class="settings-section">
+        <div class="section-header">
+          <h2>Eye Care &amp; Reading Tools</h2>
+          <p class="section-subtitle">Features engineered to alleviate digital eye strain and enhance reading focus.</p>
+        </div>
+
+        <div class="card-grid">
+          <!-- 20-20-20 Break Reminder -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">20-20-20 Eye Rest Reminder</span>
+              <span class="card-desc">Every 20 minutes, get a gentle nudge to look 20 feet away for 20 seconds.</span>
+            </div>
+            <div class="card-control">
+              <label class="switch">
+                <input type="checkbox" id="toggle-eye-rest">
+                <span class="slider-switch"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Break Interval -->
+          <div class="setting-card">
+            <div class="card-text">
+              <label for="select-break-interval" class="card-title">Break Reminder Frequency</label>
+              <span class="card-desc">Time between consecutive eye relaxation prompts.</span>
+            </div>
+            <div class="card-control">
+              <select id="select-break-interval" class="custom-select">
+                <option value="15">Every 15 minutes</option>
+                <option value="20" selected>Every 20 minutes (Recommended)</option>
+                <option value="30">Every 30 minutes</option>
+                <option value="45">Every 45 minutes</option>
+                <option value="60">Every 60 minutes</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Reading Ruler Slit Height -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Reading Ruler Slit Height</span>
+              <span class="card-desc">Vertical height of the transparent focus slit following your cursor.</span>
+            </div>
+            <div class="card-slider-wrap">
+              <span class="slider-value" id="val-ruler-height">42px</span>
+              <input type="range" id="slider-ruler-height" min="20" max="90" value="42" class="custom-range" aria-label="Reading Ruler Slit Height">
+            </div>
+          </div>
+
+          <!-- Reading Ruler Dim Darkness -->
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Reading Ruler Dim Darkness</span>
+              <span class="card-desc">Intensity of the curtain obscuring text outside the focus slit.</span>
+            </div>
+            <div class="card-slider-wrap">
+              <span class="slider-value" id="val-ruler-dim">55%</span>
+              <input type="range" id="slider-ruler-dim" min="20" max="85" value="55" class="custom-range" aria-label="Reading Ruler Dim Darkness">
             </div>
           </div>
         </div>
@@ -260,6 +446,58 @@
               </label>
             </div>
           </div>
+
+          <!-- Site Exclusion List Card -->
+          <div class="setting-card full-width-card">
+            <div class="card-text">
+              <span class="card-title">Excluded Websites (Whitelist)</span>
+              <span class="card-desc">Domains where LumiShade color filters are automatically paused.</span>
+            </div>
+            <div class="site-exclusion-manager">
+              <div class="add-site-row">
+                <input type="text" id="input-add-domain" placeholder="e.g. youtube.com, netflix.com" class="custom-text-input">
+                <button type="button" class="btn-add-site" id="btn-add-domain">+ Exclude Domain</button>
+              </div>
+              <div class="excluded-tags-container" id="excluded-tags-list">
+                <span class="no-exclusions-msg" id="no-exclusions-msg">No domains excluded yet.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Backup & Restore Section -->
+      <section id="backup" class="settings-section">
+        <div class="section-header">
+          <h2>Backup &amp; Restore</h2>
+          <p class="section-subtitle">Export your configuration to JSON or restore settings across devices.</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Export Preferences</span>
+              <span class="card-desc">Save your modes, slider settings, and whitelist rules to a JSON file.</span>
+            </div>
+            <div class="card-control">
+              <button type="button" class="btn-restore-defaults" id="btn-export-json" style="background: rgba(99, 102, 241, 0.15); border-color: rgba(99, 102, 241, 0.4); color: #e0e7ff;">
+                Download Backup (.json)
+              </button>
+            </div>
+          </div>
+
+          <div class="setting-card">
+            <div class="card-text">
+              <span class="card-title">Import Preferences</span>
+              <span class="card-desc">Restore settings from a previously exported LumiShade JSON backup.</span>
+            </div>
+            <div class="card-control">
+              <input type="file" id="file-import-json" accept=".json" style="display: none;">
+              <button type="button" class="btn-restore-defaults" id="btn-trigger-import" style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.4); color: #a7f3d0;">
+                Select File to Restore
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -293,7 +531,12 @@
               <tr>
                 <td><strong>Cycle Visual Mode</strong></td>
                 <td><span class="kbd">Alt + Shift + M</span></td>
-                <td>Switch between Night, Warm, Dim, Grayscale &amp; Original</td>
+                <td>Switch between Night, Warm, Dim, Smart Dark &amp; Original</td>
+              </tr>
+              <tr>
+                <td><strong>Toggle Reading Ruler</strong></td>
+                <td><span class="kbd">Alt + Shift + R</span></td>
+                <td>Toggle guided reading slit and background dimming</td>
               </tr>
               <tr>
                 <td><strong>Dismiss Privacy Veil</strong></td>
@@ -324,7 +567,7 @@
             <img src="../icons/icon-48.png" alt="LumiShade Icon" width="40" height="40">
             <div>
               <h3>LumiShade — Eye Comfort, Night Mode &amp; Privacy</h3>
-              <p>Version 1.0.1 &bull; Manifest V3 &bull; Open &amp; Local</p>
+              <p>Version 1.1.0 &bull; Manifest V3 &bull; Open &amp; Local</p>
             </div>
           </div>
 

@@ -544,3 +544,120 @@ input:checked + .slider-switch::before {
     width: 100%;
   }
 }
+
+/* Custom Time Inputs */
+.custom-time-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 10px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.custom-time-input:focus {
+  border-color: var(--border-focus);
+}
+
+/* Full Width Setting Card & Site Exclusion Manager */
+.full-width-card {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 16px !important;
+}
+
+.site-exclusion-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.add-site-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.custom-text-input {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.custom-text-input:focus {
+  border-color: var(--border-focus);
+}
+
+.btn-add-site {
+  background: var(--accent-indigo);
+  border: 1px solid rgba(99, 102, 241, 0.5);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.btn-add-site:hover {
+  background: #4f46e5;
+}
+
+.excluded-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 38px;
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.site-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.btn-remove-site {
+  background: none;
+  border: none;
+  color: #f87171;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.btn-remove-site:hover {
+  color: #ef4444;
+}
+
+.no-exclusions-msg {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-style: italic;
+  margin: auto 0;
+}
+
