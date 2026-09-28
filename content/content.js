@@ -223,6 +223,12 @@
         if (readingRuler && currentEffectiveSettings) {
           const isActive = readingRuler.toggle(currentEffectiveSettings);
           currentEffectiveSettings.readingRulerActive = isActive;
+          chrome.storage.local.get('lumishade_settings').then((res) => {
+            if (res && res.lumishade_settings) {
+              res.lumishade_settings.readingRulerActive = isActive;
+              chrome.storage.local.set({ lumishade_settings: res.lumishade_settings });
+            }
+          }).catch(() => {});
           sendResponse({ success: true, active: isActive });
         } else {
           sendResponse({ success: false, error: 'Reading ruler unavailable' });

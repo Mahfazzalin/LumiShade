@@ -236,7 +236,7 @@ if (chrome.contextMenus) {
       case 'lumishade_toggle_ruler':
         settings.readingRulerActive = !settings.readingRulerActive;
         await saveSettings(settings);
-        await sendToActiveTab({ type: 'TOGGLE_READING_RULER' });
+        await sendToActiveTab({ type: 'APPLY_SETTINGS', settings });
         break;
 
       case 'lumishade_toggle_smartdark':
@@ -358,7 +358,7 @@ chrome.commands.onCommand.addListener(async (command) => {
   } else if (command === 'toggle_reading_ruler') {
     settings.readingRulerActive = !settings.readingRulerActive;
     await saveSettings(settings);
-    await sendToActiveTab({ type: 'TOGGLE_READING_RULER' });
+    await sendToActiveTab({ type: 'APPLY_SETTINGS', settings });
   }
 });
 
