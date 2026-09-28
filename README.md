@@ -1,12 +1,12 @@
 # LumiShade — Eye Comfort, Night Browsing & Screen Privacy
 
-> **A modern, privacy-first Google Chrome Extension (Manifest V3) for low-light browsing, gentle color transformations, and instant full-screen privacy protection.**
+> **A modern, privacy-first Google Chrome Extension (Manifest V3) for low-light browsing, gentle color transformations, reading focus, and instant full-screen privacy protection.**
 
 ---
 
 ## Overview
 
-**LumiShade** is engineered for comfortable browsing during late hours and low-light conditions. It reduces harsh screen glare, balances high-contrast web elements, applies soothing amber overlays, and provides an instant **Privacy Blur** curtain when you need to quickly hide your screen from view.
+**LumiShade** is engineered for comfortable browsing during late hours, intense reading sessions, and low-light conditions. It reduces harsh screen glare, balances contrast, converts bright backgrounds into soothing dark modes, applies warm amber overlays, and provides an instant **Privacy Blur** curtain when you need to quickly hide your screen from view.
 
 Built with **Manifest V3**, modern CSS3, and vanilla JavaScript, LumiShade runs **100% locally on your computer** with zero external dependencies, zero trackers, and zero telemetry.
 
@@ -16,11 +16,12 @@ Built with **Manifest V3**, modern CSS3, and vanilla JavaScript, LumiShade runs 
 
 ## Key Features
 
-1. **7 Tailored Visual Modes**:
-   - **Original**: Normal webpage rendering.
+1. **8 Tailored Visual Modes**:
+   - **Original**: Normal natural webpage rendering.
    - **Night Comfort**: Balanced contrast, reduced brightness (85%), and subtle amber warmth.
    - **Warm Night**: Warm amber color overlay to minimize harsh blue tones.
    - **Dim Level**: Gentle neutral dark overlay curtain preserving text contrast.
+   - **Smart Dark**: High-performance inversion for bright sites, keeping images, videos, and icons looking natural.
    - **Grayscale**: Converts saturated webpage colors into soft gray tones.
    - **Black & White**: High-contrast monochrome reading treatment.
    - **Custom**: User-defined combination of sliders.
@@ -28,57 +29,83 @@ Built with **Manifest V3**, modern CSS3, and vanilla JavaScript, LumiShade runs 
    - **Brightness** (0% to 100%)
    - **Contrast** (0% to 200%)
    - **Grayscale** (0% to 100%)
-   - **Warmth** (0% to 100%)
+   - **Warmth** (0% to 100%) with **Kelvin temperature indicator** (6500K down to 1900K candlelight).
    - **Dim Level** (0% to 100%)
    - **Instant Reset** button to restore presets.
-3. **Full-Page Privacy Blur Curtain**:
+3. **Focus Reading Ruler (<kbd>Alt + Shift + R</kbd>)**:
+   - An isolated Shadow DOM reading slit following your mouse cursor.
+   - Dims surrounding lines to reduce distractions and boost reading speed for documents, research, and long articles.
+4. **20-20-20 Eye Rest Break & Wellness Guide**:
+   - Ophthalmologist-recommended habit: every 20 minutes, look 20 feet away for 20 seconds.
+   - Gentle floating prompts or quick-launch 20-second breathing countdown from the popup.
+5. **Full-Page Privacy Blur Curtain (<kbd>Alt + Shift + B</kbd>)**:
    - Immediately obscures the entire visible viewport with a heavy backdrop-filter blur (`blur(28px)`) and dark translucent curtain (`82% opacity`).
+   - Displays a discreet center shield badge and live clock.
    - Prevents accidental clicks or text selection behind the veil.
-   - Remains active continuously while scrolling.
-4. **Sharp Floating Unblur Button**:
-   - Encapsulated inside an **isolated Shadow DOM** so page CSS cannot hide or distort it.
-   - Remains razor-sharp and unblurred on top of the veil.
-   - Configurable position in any of the 4 screen corners (Bottom-Right, Bottom-Left, Top-Right, Top-Left).
-   - Pressing the <kbd>Escape</kbd> key or clicking the button instantly restores the page.
-5. **Keyboard Shortcuts**:
-   - <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd>: Toggle Eye Comfort Mode ON / OFF.
-   - <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd>: Toggle Privacy Blur.
-   - <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd>: Cycle through visual modes.
-   - <kbd>Escape</kbd>: Instantly dismiss Privacy Blur.
-6. **Robust Page Defense & SPA Compatibility**:
-   - Injected elements use isolated Shadow DOM and unique namespaces (`lumishade-*`).
-   - Mutation observers defend against single-page apps (SPAs) rewriting the DOM.
-7. **Full Settings Dashboard**:
-   - Dedicated settings page for startup preferences, privacy parameters, and per-site memory.
-8. **Accessibility & Reduced Motion**:
-   - Full keyboard navigation and visible focus rings.
-   - Strict adherence to `prefers-reduced-motion` media queries.
-9. **Smart, Non-Intrusive Rating & Feedback System**:
-   - Spaced review prompt with 30-day cooldown on dismissal ("Maybe Later" or <kbd>Escape</kbd>).
-   - 4–5 star rating directs to the Chrome Web Store review page.
-   - 1–3 star rating prompts for local improvement feedback (stored strictly on your machine).
-   - Never interrupts while Privacy Blur is active or on restricted pages.
-   - Can be toggled on or off at any time via Settings ("Periodic Feedback Prompts").
+   - Sharp floating unblur button in isolated Shadow DOM (configurable corners) + <kbd>Escape</kbd> instant restore.
+6. **Smart Automation & Scheduled Night Shift**:
+   - Set custom start and end hours (e.g., 20:00 to 07:00) to auto-engage night mode.
+   - Optional automatic sync with your operating system's dark/light theme (`prefers-color-scheme`).
+7. **Automated Safety Triggers**:
+   - Auto-blur on tab switch / window blur.
+   - Inactivity auto-blur timer (1, 2, 5, or 10 minutes of idle time).
+8. **One-Click Domain Whitelist / Exclusion**:
+   - Directly toggle *"Exclude / Include this Site"* from the popup header or right-click context menu.
+   - Manage excluded websites table in the Settings dashboard.
+9. **Backup & Restore**:
+   - Export your custom modes, whitelist rules, and slider preferences to `.json`.
+   - Restore seamlessly across computers and browsers.
+10. **Keyboard Shortcuts & Context Menus**:
+    - Right-click anywhere for instant access to power, privacy blur, smart dark mode, and domain exclusions.
 
 ---
 
-## User Review & Rating System
+## Keyboard Shortcuts
 
-LumiShade includes an intelligent, privacy-first review request prompt designed to respect user focus:
+| Shortcut | Action | Description |
+|---|---|---|
+| <kbd>Alt + Shift + E</kbd> | Toggle Power | Turns comfort filters ON or OFF |
+| <kbd>Alt + Shift + B</kbd> | Toggle Privacy Blur | Hides or reveals the screen with blur |
+| <kbd>Alt + Shift + M</kbd> | Cycle Visual Mode | Cycles through Night, Warm, Dim, Smart Dark, Grayscale, B&W & Original |
+| <kbd>Alt + Shift + R</kbd> | Toggle Reading Ruler | Toggles guided cursor reading slit |
+| <kbd>Escape</kbd> | Dismiss Privacy Veil | Unblurs the page immediately |
 
-- **Eligibility Criteria**:
-  - Extension install age must be at least **3 days**.
-  - Must have at least **5 active usage sessions**.
-  - Never triggers while **Privacy Blur** is active or while viewing browser-restricted internal pages (`chrome://`, `edge://`, `chromewebstore.google.com`).
-- **Cooldown & Snooze**:
-  - Clicking **Maybe Later** or dismissing the modal with <kbd>Escape</kbd> sets a **30-day cooldown period** during which no review prompts will appear.
-- **Opt-Out & Settings Control**:
-  - Selecting **Don't Ask Again** suppresses prompts. Users can also enable or disable the "Periodic Feedback Prompts" toggle anytime in the Settings page (`settings/settings.html`).
-- **Interactive 1–5 Star Flows**:
-  - **4–5 Stars**: Thank-you message with a direct link to the Chrome Web Store review tab.
-  - **1–3 Stars**: Constructive improvement tags (UI/UX, Performance, Night Mode, Color Filters, Privacy Blur, Other) saved strictly in `chrome.storage.local` with zero network requests.
-- **Manual Web Store Review**:
-  - Users can rate LumiShade at any time directly via the "Rate on Web Store" button in the Settings page.
+> **Customizing Shortcuts**: Chromium allows you to change default shortcuts at any time by navigating to `chrome://extensions/shortcuts`.
+
+---
+
+## Project Structure
+
+```
+LumiShade/
+├── manifest.json                  # Manifest V3 specification (v1.1.0)
+├── background/
+│   └── service-worker.js          # Ephemeral SW for commands, alarms, context menus & badge
+├── content/
+│   ├── visual-engine.js           # Reusable CSS filter, smart dark & overlay engine
+│   ├── privacy.js                 # Isolated Shadow DOM privacy veil, clock & floating button
+│   ├── reading-ruler.js           # Mouse-tracking reading guide slit
+│   ├── eye-break.js               # 20-20-20 eye rest prompt & countdown
+│   ├── content.css                # Scoped injected curtain styles
+│   └── content.js                 # Content script coordinator & message handler
+├── popup/
+│   ├── popup.html                 # Accessible, dark-first popup UI
+│   ├── popup.css                  # Modern glassmorphic styles
+│   └── popup.js                   # Popup state, site exclusion & tab communication
+├── settings/
+│   ├── settings.html              # Full preferences dashboard with schedule & backup
+│   ├── settings.css               # Settings styling
+│   └── settings.js                # Settings controller & JSON import/export
+├── icons/
+│   ├── icon.svg                   # Vector source icon
+│   ├── icon-16.png                # 16x16 PNG
+│   ├── icon-32.png                # 32x32 PNG
+│   ├── icon-48.png                # 48x48 PNG
+│   └── icon-128.png               # 128x128 PNG
+├── generate_icons.py              # Icon generation script via Pillow
+├── CHROMEWEBSTORE.md              # Chrome Web Store listing, permissions & privacy docs
+└── README.md                      # Complete documentation
+```
 
 ---
 
@@ -98,79 +125,8 @@ To install and run LumiShade in Google Chrome or any Chromium-based browser (Bra
      c:\Users\mahf\Desktop\LumiShade
      ```
 5. **Verify Installation**:
-   - The **LumiShade** card will appear in your extension list with version `1.0.1`.
+   - The **LumiShade** card will appear in your extension list with version `1.1.0`.
    - Pin LumiShade to your browser toolbar for fast access.
-
----
-
-## How to Use
-
-1. **Opening the Popup**:
-   - Click the LumiShade icon in your browser toolbar.
-2. **Switching Modes**:
-   - Click any of the 7 visual mode cards (Original, Night, Warm, Dim, Grayscale, B&W, Custom).
-3. **Fine-Tuning**:
-   - Drag any slider (Brightness, Contrast, Grayscale, Warmth, Dim). The page reflects changes in real-time.
-   - Click **Reset** to return sliders to the default values of the active mode.
-4. **Activating Privacy Blur**:
-   - Click the **Privacy Blur** hero toggle in the popup or press <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd>.
-   - To restore the page, click the floating pill button on the screen or press <kbd>Escape</kbd>.
-5. **Customizing Preferences**:
-   - Click the gear icon in the popup header to open the full Settings dashboard.
-
----
-
-## Keyboard Shortcuts
-
-| Shortcut | Action | Description |
-|---|---|---|
-| <kbd>Alt + Shift + E</kbd> | Toggle Power | Turns comfort filters ON or OFF |
-| <kbd>Alt + Shift + B</kbd> | Toggle Privacy Blur | Hides or reveals the screen with blur |
-| <kbd>Alt + Shift + M</kbd> | Cycle Visual Mode | Cycles through Night, Warm, Dim, Grayscale, B&W, and Original |
-| <kbd>Escape</kbd> | Dismiss Blur | Unblurs the page immediately |
-
-> **Customizing Shortcuts**: Chromium allows you to change default shortcuts at any time by navigating to `chrome://extensions/shortcuts`.
-
----
-
-## Project Structure
-
-```
-LumiShade/
-├── manifest.json                  # Manifest V3 specification
-├── background/
-│   └── service-worker.js          # Ephemeral SW for commands, lifecycle & badge
-├── content/
-│   ├── visual-engine.js           # Reusable CSS filter & overlay engine
-│   ├── privacy.js                 # Isolated Shadow DOM privacy veil & floating button
-│   ├── content.css                # Scoped injected curtain styles
-│   └── content.js                 # Content script coordinator & message handler
-├── popup/
-│   ├── popup.html                 # Accessible, dark-first popup UI
-│   ├── popup.css                  # Modern glassmorphic styles
-│   └── popup.js                   # Popup state, slider syncing & tab communication
-├── settings/
-│   ├── settings.html              # Full preferences dashboard
-│   ├── settings.css               # Settings styling
-│   └── settings.js                # Settings controller & persistence
-├── icons/
-│   ├── icon.svg                   # Vector source icon
-│   ├── icon-16.png                # 16x16 PNG
-│   ├── icon-32.png                # 32x32 PNG
-│   ├── icon-48.png                # 48x48 PNG
-│   └── icon-128.png               # 128x128 PNG
-├── generate_icons.py              # Icon generation script via Pillow
-├── CHROMEWEBSTORE.md              # Chrome Web Store listing, permissions & privacy docs
-└── README.md                      # Complete documentation
-```
-
----
-
-## Known Chrome Restrictions
-
-- **Internal Chrome Pages**: Chromium security blocks extensions and content scripts from modifying internal pages like `chrome://extensions`, `chrome://settings`, and `chrome://newtab`.
-- **Chrome Web Store**: Chrome extensions are strictly prevented from modifying pages hosted under `chromewebstore.google.com`.
-- LumiShade detects these restricted pages and displays a discreet notice banner in the popup without throwing uncaught errors.
 
 ---
 
@@ -178,16 +134,5 @@ LumiShade/
 
 - **Zero Tracking**: No analytics, telemetry, or remote tracking libraries.
 - **Zero Remote Code**: No external CDNs, `eval()`, `new Function()`, or third-party dependencies.
-- **Local Storage Only**: Only uses `chrome.storage.local` to store your brightness and mode preferences on your device.
-- **Minimum Permissions**: Only requests `storage` permission.
-
----
-
-## Troubleshooting
-
-- **Page didn't change after clicking a mode**:
-  Ensure the page was loaded after installing the extension. Refresh the page once to initialize content scripts.
-- **Privacy button is hidden by something**:
-  LumiShade uses Shadow DOM with `z-index: 2147483647`. If a website has an unusual layout, you can press <kbd>Escape</kbd> on your keyboard or select a different corner position in the Settings page.
-- **Shortcut didn't fire**:
-  Check if another extension or browser native command is using that key combination in `chrome://extensions/shortcuts`.
+- **Local Storage Only**: Only uses `chrome.storage.local` on your machine.
+- **Minimum Permissions**: Only requests `storage`, `alarms`, and `contextMenus`.
