@@ -18,7 +18,7 @@
     privacyOverlayDarkness: 82,
     floatingButtonPosition: 'bottom-right',
     enableOnStartup: true,
-    rememberPerSite: false,
+    rememberPerSite: true,
     siteOverrides: {},
     excludedSites: [],
 
@@ -27,6 +27,7 @@
     scheduleStartTime: '20:00',
     scheduleEndTime: '07:00',
     scheduleMode: 'night',
+    scheduleState: 'idle',
     syncWithOSTheme: false,
 
     // Eye Wellness & Reading Tools
@@ -238,7 +239,7 @@
 
     // Behavior & Sites
     if (toggleStartup) toggleStartup.checked = currentSettings.enableOnStartup !== false;
-    if (togglePerSite) togglePerSite.checked = Boolean(currentSettings.rememberPerSite);
+    if (togglePerSite) togglePerSite.checked = currentSettings.rememberPerSite !== false;
     if (toggleReviewPrompts) toggleReviewPrompts.checked = !reviewState.dontAskAgain;
 
     renderExcludedSites();

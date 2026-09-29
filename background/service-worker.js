@@ -1,6 +1,7 @@
 /**
  * LumiShade - Background Service Worker (Manifest V3)
- * Handles lifecycle, keyboard commands, storage initialization, alarms, context menus, and badge updates.
+ * Handles lifecycle, keyboard commands, storage initialization, alarms, context menus,
+ * tab switching, per-domain mode memory, and badge updates.
  * Ephemeral: strictly avoids storing state in global variables.
  */
 
@@ -17,7 +18,7 @@ const DEFAULT_SETTINGS = {
   privacyOverlayDarkness: 82,
   floatingButtonPosition: 'bottom-right',
   enableOnStartup: true,
-  rememberPerSite: false,
+  rememberPerSite: true, // Remembers tailored mode independently for each domain
   siteOverrides: {},
   excludedSites: [],
 
@@ -26,6 +27,7 @@ const DEFAULT_SETTINGS = {
   scheduleStartTime: '20:00',
   scheduleEndTime: '07:00',
   scheduleMode: 'night',
+  scheduleState: 'idle', // Transition threshold tracker to avoid continuous overwriting
   syncWithOSTheme: false,
 
   // Eye Wellness & Reading Tools
@@ -53,6 +55,24 @@ const MODE_PRESETS = {
 };
 
 /**
+ * Retrieve per-site configuration matching exact host, stripped www, or parent domain.
+ */
+function getSiteConfig(siteOverrides, hostname) {
+  if (!siteOverrides || !hostname) return null;
+  const host = hostname.toLowerCase().trim();
+  if (siteOverrides[host]) return siteOverrides[host];
+  if (host.startsWith('www.') && siteOverrides[host.slice(4)]) {
+    return siteOverrides[host.slice(4)];
+  }
+  const parts = host.split('.');
+  if (parts.length > 2) {
+    const parent = parts.slice(-2).join('.');
+    if (siteOverrides[parent]) return siteOverrides[parent];
+  }
+  return null;
+}
+
+/**
  * Retrieve merged settings safely from storage.
  */
 async function getSettings() {
@@ -78,31 +98,45 @@ async function saveSettings(settings) {
 }
 
 /**
- * Update the extension icon badge based on state.
+ * Update the extension icon badge based on state and optional active domain.
  */
-async function updateBadge(settings) {
+async function updateBadge(settings, targetHostname = '') {
   try {
     if (!settings.enabled) {
       await chrome.action.setBadgeText({ text: 'OFF' });
       await chrome.action.setBadgeBackgroundColor({ color: '#64748b' });
-    } else if (settings.privacyActive) {
+      return;
+    }
+
+    if (settings.privacyActive) {
       await chrome.action.setBadgeText({ text: 'BLUR' });
       await chrome.action.setBadgeBackgroundColor({ color: '#6366f1' });
-    } else {
-      const modeLabels = {
-        original: '',
-        night: 'NGT',
-        warm: 'WRM',
-        dim: 'DIM',
-        smartdark: 'DARK',
-        grayscale: 'GRAY',
-        blackwhite: 'B&W',
-        custom: 'CST'
-      };
-      const text = modeLabels[settings.mode] || 'ON';
-      await chrome.action.setBadgeText({ text });
-      await chrome.action.setBadgeBackgroundColor({ color: '#10b981' });
+      return;
     }
+
+    // Determine effective mode for the active domain
+    let effectiveMode = settings.mode;
+    if (targetHostname && settings.rememberPerSite !== false && settings.siteOverrides) {
+      const siteConfig = getSiteConfig(settings.siteOverrides, targetHostname);
+      if (siteConfig && siteConfig.mode) {
+        effectiveMode = siteConfig.mode;
+      }
+    }
+
+    const modeLabels = {
+      original: '',
+      night: 'NGT',
+      warm: 'WRM',
+      dim: 'DIM',
+      smartdark: 'DARK',
+      grayscale: 'GRAY',
+      blackwhite: 'B&W',
+      custom: 'CST'
+    };
+
+    const text = modeLabels[effectiveMode] || 'ON';
+    await chrome.action.setBadgeText({ text });
+    await chrome.action.setBadgeBackgroundColor({ color: '#10b981' });
   } catch (error) {
     console.warn('[LumiShade SW] Badge update failed:', error);
   }
@@ -155,7 +189,7 @@ function isCurrentTimeInSchedule(startTimeStr, endTimeStr) {
   const endMinutes = endH * 60 + endM;
 
   if (startMinutes < endMinutes) {
-    // Normal daytime interval, e.g. 09:00 to 17:00
+    // Daytime interval, e.g. 09:00 to 17:00
     return currentMinutes >= startMinutes && currentMinutes < endMinutes;
   } else {
     // Overnight interval, e.g. 20:00 to 07:00
@@ -219,6 +253,12 @@ function setupContextMenus() {
 if (chrome.contextMenus) {
   chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     const settings = await getSettings();
+    let hostname = '';
+    if (tab && tab.url) {
+      try {
+        hostname = new URL(tab.url).hostname;
+      } catch (e) {}
+    }
 
     switch (info.menuItemId) {
       case 'lumishade_toggle_power':
@@ -243,28 +283,33 @@ if (chrome.contextMenus) {
         settings.enabled = true;
         settings.mode = 'smartdark';
         Object.assign(settings, MODE_PRESETS.smartdark);
+        if (settings.rememberPerSite !== false && hostname) {
+          if (!settings.siteOverrides) settings.siteOverrides = {};
+          settings.siteOverrides[hostname] = {
+            mode: 'smartdark',
+            brightness: settings.brightness,
+            contrast: settings.contrast,
+            grayscale: settings.grayscale,
+            warmth: settings.warmth,
+            dim: settings.dim
+          };
+        }
         await saveSettings(settings);
         await sendToActiveTab({ type: 'APPLY_SETTINGS', settings });
         break;
 
       case 'lumishade_toggle_site_exclude':
-        if (tab && tab.url) {
-          try {
-            const urlObj = new URL(tab.url);
-            const hostname = urlObj.hostname;
-            if (hostname) {
-              const list = settings.excludedSites || [];
-              const idx = list.indexOf(hostname);
-              if (idx >= 0) {
-                list.splice(idx, 1);
-              } else {
-                list.push(hostname);
-              }
-              settings.excludedSites = list;
-              await saveSettings(settings);
-              await sendToActiveTab({ type: 'APPLY_SETTINGS', settings });
-            }
-          } catch (e) {}
+        if (hostname) {
+          const list = settings.excludedSites || [];
+          const idx = list.indexOf(hostname);
+          if (idx >= 0) {
+            list.splice(idx, 1);
+          } else {
+            list.push(hostname);
+          }
+          settings.excludedSites = list;
+          await saveSettings(settings);
+          await sendToActiveTab({ type: 'APPLY_SETTINGS', settings });
         }
         break;
     }
@@ -272,7 +317,9 @@ if (chrome.contextMenus) {
 }
 
 /**
- * Alarms listener for schedule and break reminders.
+ * Alarms listener for auto-schedule and eye rest reminders.
+ * Only triggers schedule mode changes upon crossing time boundaries,
+ * strictly avoiding recurring clobbering of manually chosen modes!
  */
 if (chrome.alarms) {
   chrome.alarms.onAlarm.addListener(async (alarm) => {
@@ -282,13 +329,26 @@ if (chrome.alarms) {
       if (settings.autoScheduleEnabled) {
         const isScheduledTime = isCurrentTimeInSchedule(settings.scheduleStartTime, settings.scheduleEndTime);
         const targetMode = settings.scheduleMode || 'night';
+        const targetState = isScheduledTime ? 'in_schedule' : 'out_of_schedule';
 
-        if (isScheduledTime && settings.mode !== targetMode) {
-          settings.mode = targetMode;
-          settings.enabled = true;
-          if (MODE_PRESETS[targetMode]) {
-            Object.assign(settings, MODE_PRESETS[targetMode]);
+        // State transition detection: only execute when crossing the schedule threshold!
+        if (settings.scheduleState !== targetState) {
+          settings.scheduleState = targetState;
+
+          if (isScheduledTime) {
+            settings.mode = targetMode;
+            settings.enabled = true;
+            if (MODE_PRESETS[targetMode]) {
+              Object.assign(settings, MODE_PRESETS[targetMode]);
+            }
+          } else {
+            // Revert back to daytime default
+            settings.mode = 'original';
+            if (MODE_PRESETS.original) {
+              Object.assign(settings, MODE_PRESETS.original);
+            }
           }
+
           await saveSettings(settings);
           await sendToActiveTab({ type: 'APPLY_SETTINGS', settings });
         }
@@ -300,6 +360,68 @@ if (chrome.alarms) {
     }
   });
 }
+
+/**
+ * Tab switch listener: ensures active tab's per-site mode is reflected on the badge
+ * and applied seamlessly when switching between tabs/domains.
+ */
+chrome.tabs.onActivated.addListener(async (activeInfo) => {
+  try {
+    const tab = await chrome.tabs.get(activeInfo.tabId);
+    if (!tab || !tab.url) return;
+    const settings = await getSettings();
+    if (!settings.enabled) {
+      await updateBadge(settings);
+      return;
+    }
+
+    try {
+      const url = new URL(tab.url);
+      const hostname = url.hostname;
+      if (hostname) {
+        // Excluded site check
+        const isExcluded = Array.isArray(settings.excludedSites) && settings.excludedSites.some(s => {
+          const lower = s.toLowerCase().trim();
+          return hostname === lower || hostname.endsWith('.' + lower);
+        });
+
+        if (isExcluded) {
+          await chrome.action.setBadgeText({ text: 'OFF' });
+          await chrome.action.setBadgeBackgroundColor({ color: '#64748b' });
+          return;
+        }
+
+        const siteConfig = getSiteConfig(settings.siteOverrides, hostname);
+        const effectiveMode = (settings.rememberPerSite !== false && siteConfig && siteConfig.mode)
+          ? siteConfig.mode
+          : settings.mode;
+
+        await updateBadge({ ...settings, mode: effectiveMode });
+        await chrome.tabs.sendMessage(activeInfo.tabId, { type: 'APPLY_SETTINGS', settings }).catch(() => {});
+      }
+    } catch (e) {}
+  } catch (err) {}
+});
+
+/**
+ * Tab navigation listener: update badge when page completes loading.
+ */
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (changeInfo.status === 'complete' && tab && tab.active && tab.url) {
+    try {
+      const settings = await getSettings();
+      const url = new URL(tab.url);
+      const hostname = url.hostname;
+      if (hostname) {
+        const siteConfig = getSiteConfig(settings.siteOverrides, hostname);
+        const effectiveMode = (settings.rememberPerSite !== false && siteConfig && siteConfig.mode)
+          ? siteConfig.mode
+          : settings.mode;
+        await updateBadge({ ...settings, mode: effectiveMode });
+      }
+    } catch (e) {}
+  }
+});
 
 /**
  * Extension install and update lifecycle.
@@ -344,13 +466,40 @@ chrome.commands.onCommand.addListener(async (command) => {
     await sendToActiveTab({ type: 'APPLY_SETTINGS', settings });
   } else if (command === 'cycle_mode') {
     if (!settings.enabled) settings.enabled = true;
-    const currentIndex = MODE_CYCLE_ORDER.indexOf(settings.mode);
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    let currentMode = settings.mode;
+    let hostname = '';
+    if (tab && tab.url) {
+      try {
+        hostname = new URL(tab.url).hostname;
+        if (settings.rememberPerSite !== false && hostname) {
+          const siteConfig = getSiteConfig(settings.siteOverrides, hostname);
+          if (siteConfig && siteConfig.mode) {
+            currentMode = siteConfig.mode;
+          }
+        }
+      } catch (e) {}
+    }
+
+    const currentIndex = MODE_CYCLE_ORDER.indexOf(currentMode);
     const nextIndex = (currentIndex + 1) % MODE_CYCLE_ORDER.length;
     const nextMode = MODE_CYCLE_ORDER[nextIndex];
-    settings.mode = nextMode;
 
+    settings.mode = nextMode;
     if (MODE_PRESETS[nextMode]) {
       Object.assign(settings, MODE_PRESETS[nextMode]);
+    }
+
+    if (settings.rememberPerSite !== false && hostname) {
+      if (!settings.siteOverrides) settings.siteOverrides = {};
+      settings.siteOverrides[hostname] = {
+        mode: nextMode,
+        brightness: settings.brightness,
+        contrast: settings.contrast,
+        grayscale: settings.grayscale,
+        warmth: settings.warmth,
+        dim: settings.dim
+      };
     }
 
     await saveSettings(settings);

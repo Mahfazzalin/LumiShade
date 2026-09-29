@@ -28,7 +28,7 @@
     privacyOverlayDarkness: 82,
     floatingButtonPosition: 'bottom-right',
     enableOnStartup: true,
-    rememberPerSite: false,
+    rememberPerSite: true,
     siteOverrides: {},
     excludedSites: [],
     readingRulerActive: false
@@ -134,6 +134,41 @@
   }
 
   /**
+   * Retrieve per-site configuration matching exact host, stripped www, or parent domain.
+   */
+  function getSiteConfig(siteOverrides, hostname) {
+    if (!siteOverrides || !hostname) return null;
+    const host = hostname.toLowerCase().trim();
+    if (siteOverrides[host]) return siteOverrides[host];
+    if (host.startsWith('www.') && siteOverrides[host.slice(4)]) {
+      return siteOverrides[host.slice(4)];
+    }
+    const parts = host.split('.');
+    if (parts.length > 2) {
+      const parent = parts.slice(-2).join('.');
+      if (siteOverrides[parent]) return siteOverrides[parent];
+    }
+    return null;
+  }
+
+  /**
+   * Save the active visual settings specifically for the current domain.
+   */
+  function saveCurrentSiteOverride() {
+    if (currentSettings.rememberPerSite !== false && currentHostname) {
+      if (!currentSettings.siteOverrides) currentSettings.siteOverrides = {};
+      currentSettings.siteOverrides[currentHostname] = {
+        mode: currentSettings.mode,
+        brightness: currentSettings.brightness,
+        contrast: currentSettings.contrast,
+        grayscale: currentSettings.grayscale,
+        warmth: currentSettings.warmth,
+        dim: currentSettings.dim
+      };
+    }
+  }
+
+  /**
    * Save current settings to chrome.storage.local and background.
    */
   async function persistSettings() {
@@ -156,6 +191,7 @@
    * Push settings to active tab with requestAnimationFrame batching.
    */
   function dispatchSettingsToTab() {
+    saveCurrentSiteOverride();
     if (rafId) cancelAnimationFrame(rafId);
     rafId = requestAnimationFrame(async () => {
       await sendMessageToTab({ type: 'APPLY_SETTINGS', settings: currentSettings });
@@ -733,6 +769,19 @@
         const local = localStorage.getItem('lumishade_settings');
         if (local) currentSettings = { ...DEFAULT_SETTINGS, ...JSON.parse(local) };
       } catch (e) {}
+    }
+
+    // Apply per-site tailored mode & sliders for the active domain if available
+    if (currentSettings.rememberPerSite !== false && currentHostname && currentSettings.siteOverrides) {
+      const siteConfig = getSiteConfig(currentSettings.siteOverrides, currentHostname);
+      if (siteConfig && siteConfig.mode) {
+        currentSettings.mode = siteConfig.mode;
+        if (siteConfig.brightness !== undefined) currentSettings.brightness = siteConfig.brightness;
+        if (siteConfig.contrast !== undefined) currentSettings.contrast = siteConfig.contrast;
+        if (siteConfig.grayscale !== undefined) currentSettings.grayscale = siteConfig.grayscale;
+        if (siteConfig.warmth !== undefined) currentSettings.warmth = siteConfig.warmth;
+        if (siteConfig.dim !== undefined) currentSettings.dim = siteConfig.dim;
+      }
     }
 
     // 3. Query active tab state for live sync

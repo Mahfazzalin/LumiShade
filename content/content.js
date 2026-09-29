@@ -29,6 +29,24 @@
   }
 
   /**
+   * Retrieve per-site configuration matching exact host, stripped www, or parent domain.
+   */
+  function getSiteConfig(siteOverrides, hostname) {
+    if (!siteOverrides || !hostname) return null;
+    const host = hostname.toLowerCase().trim();
+    if (siteOverrides[host]) return siteOverrides[host];
+    if (host.startsWith('www.') && siteOverrides[host.slice(4)]) {
+      return siteOverrides[host.slice(4)];
+    }
+    const parts = host.split('.');
+    if (parts.length > 2) {
+      const parent = parts.slice(-2).join('.');
+      if (siteOverrides[parent]) return siteOverrides[parent];
+    }
+    return null;
+  }
+
+  /**
    * Determine effective settings taking site-specific overrides and exclusions into account.
    */
   function resolveEffectiveSettings(settings) {
@@ -43,8 +61,8 @@
     resolved.isSiteExcluded = false;
 
     // Check per-site custom overrides
-    if (settings.rememberPerSite && settings.siteOverrides && location.hostname) {
-      const siteConfig = settings.siteOverrides[location.hostname];
+    if (settings.rememberPerSite !== false && settings.siteOverrides && location.hostname) {
+      const siteConfig = getSiteConfig(settings.siteOverrides, location.hostname);
       if (siteConfig && siteConfig.mode) {
         resolved.mode = siteConfig.mode;
         if (siteConfig.brightness !== undefined) resolved.brightness = siteConfig.brightness;
@@ -52,11 +70,12 @@
         if (siteConfig.grayscale !== undefined) resolved.grayscale = siteConfig.grayscale;
         if (siteConfig.warmth !== undefined) resolved.warmth = siteConfig.warmth;
         if (siteConfig.dim !== undefined) resolved.dim = siteConfig.dim;
+        resolved.hasSiteCustomOverride = true;
       }
     }
 
-    // System OS Theme Sync
-    if (settings.syncWithOSTheme && (!settings.mode || settings.mode === 'original' || settings.mode === 'night')) {
+    // System OS Theme Sync (only if current domain has no custom override)
+    if (!resolved.hasSiteCustomOverride && settings.syncWithOSTheme && (!settings.mode || settings.mode === 'original' || settings.mode === 'night')) {
       const isSystemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       resolved.mode = isSystemDark ? 'night' : 'original';
     }
